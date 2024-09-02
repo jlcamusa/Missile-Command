@@ -15,12 +15,8 @@ class City:
 #Creating all of the cities objects
 city1 = City(0, 50)
 city2 = City(1, 150)
-city3 = City(2, 250)
-city4 = City(3, 500)
-city5 = City(4, 600)
-city6 = City(5, 700)
 #Add every city in the list
-cities = [city1, city2, city3, city4, city5, city6]
+cities = [city1, city2]
 
 #Variable for city status verification
 isAlive = [True, True, True, True, True, True]
