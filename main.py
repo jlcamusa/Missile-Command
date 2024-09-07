@@ -29,7 +29,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 
 # Configura la fuente para el texto
-font = pygame.font.Font(None, 36)
+font = pygame.font.SysFont("consolas", int(SCREEN_HEIGHT * 0.035))
 
 # Inicializa puntajes
 player_score = 0
@@ -37,8 +37,6 @@ high_score = 1000  # Puedes establecer un valor inicial o cargarlo desde un arch
 
 # Configurar el título de la ventana
 pygame.display.set_caption("Missile Command")
-
-level = 0
 
 half = SCREEN_WIDTH/18
 
@@ -49,7 +47,8 @@ shelter_positions = [SCREEN_WIDTH/9 - half, 2*SCREEN_WIDTH/9 - half,
                      9*SCREEN_WIDTH/9 - half]
 
 enemy_missiles = []
-points = 0
+enemies = []
+level = 0
 player_missiles = []
 explosion_list = []
 shelter = [True, True, True, True, True, True]
@@ -73,7 +72,6 @@ colors_list = [GREEN, RED, YELLOW,
                BLUE]
 
 def draw_scores(screen, player_score, high_score):
-    """Dibuja el puntaje del jugador y el puntaje más alto en la pantalla."""
     
     # Dibuja el puntaje del jugador en la parte superior izquierda
     player_score_text = font.render(f"Score: {player_score}", True, WHITE)
@@ -202,7 +200,6 @@ def designate_launcher(x,y):
             minimum_x = x1
     return minimum_x
 
-# TODO: launches the rockets
 def launch_rocket(x, y):
     if y > SCREEN_HEIGHT-SHELTER_HEIGHT*1.4:
         return
@@ -281,10 +278,10 @@ def new_level():
         launcher_list[1].ammo = 10
         launcher_list[2].ammo = 10
         explosion_list.clear()
-        global points
-        points += 1
-        for i in range(10):
-            temp = Missile(random.randrange(SCREEN_WIDTH), 0,
+        global level
+        level += 1
+        for _ in range(10):
+            temp = Missile(random.randrange(SCREEN_WIDTH), -10,
                            random.choice(shelter_positions), SCREEN_HEIGHT - GROUND_HEIGHT, 0.04, random.randrange(4000))
             enemy_missiles.append(temp)
 
@@ -295,10 +292,9 @@ def lose():
     del explosion_list[:]
     del player_missiles[:]
     del enemy_missiles[:]
-    global points
+    global level
     draw()
-    large_text = pygame.font.SysFont("consolas", int(SCREEN_HEIGHT * 0.035))
-    text_surface = large_text.render("Survived waves : " + str(points) +
+    text_surface = font.render("Survived waves : " + str(level) +
                                      " Press space to start again", True, (255, 0, 0))
     text_rect = text_surface.get_rect()
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2))
@@ -321,7 +317,7 @@ def lose():
                     shelter[3] = True
                     shelter[4] = True
                     shelter[5] = True
-                    points = 0
+                    level = 0
                     main()
 
 def main():
@@ -330,12 +326,13 @@ def main():
         collision()
         draw()
         new_level()
-        for e in pygame.event.get():
-            if e.type == pygame.QUIT:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 sys.exit(0)
-            elif e.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
                 launch_rocket(x, y)
+        
         #clock.tick(60)
 
 main()
