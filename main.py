@@ -84,6 +84,21 @@ def draw_scores(screen, player_score, high_score):
     text_width = high_score_text.get_width()
     screen.blit(high_score_text, (SCREEN_WIDTH - text_width - 10, 10))
 
+def draw_button(text, pos, font, color, hover_color):
+    button_text = font.render(text, True, (255, 255, 255))
+    button_rect = button_text.get_rect(center=pos)
+    
+    # Efecto de hover
+    mouse_pos = pygame.mouse.get_pos()
+    if button_rect.collidepoint(mouse_pos):
+        pygame.draw.rect(screen, hover_color, button_rect.inflate(20, 10))
+    else:
+        pygame.draw.rect(screen, color, button_rect.inflate(20, 10))
+    
+    screen.blit(button_text, button_rect)
+    
+    return button_rect
+
 # draw: dibuja todos los elementos del juego
 def draw():
     screen.fill(BLACK)    
@@ -322,7 +337,58 @@ def lose():
                     level = 0
                     main()
 
+def show_menu():
+    # Definir los botones
+    button_font = pygame.font.Font(None, 50)
+    button_color = (100, 100, 255)
+    button_hover_color = (150, 150, 255)
+    
+    buttons = [
+        {"text": "Play", "action": "play"},
+        {"text": "HighScore", "action": "highscore"},
+        {"text": "Exit", "action": "exit"}
+    ]
+    
+    menu_running = True
+    while menu_running:
+        screen.fill((0, 0, 0))  # Fondo negro
+        
+        # Dibujar el título
+        title_text = font.render("Mi Juego", True, (255, 255, 255))
+        title_text_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 150))
+        screen.blit(title_text, title_text_rect)
+        
+        # Dibujar los botones
+        button_rects = []
+        y_offset = 0
+        for button in buttons:
+            button_rect = draw_button(button["text"], (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + y_offset), button_font, button_color, button_hover_color)
+            button_rects.append({"rect": button_rect, "action": button["action"]})
+            y_offset += 70  # Espacio entre botones
+        
+        pygame.display.flip()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit(0)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                for button in button_rects:
+                    if button["rect"].collidepoint(mouse_pos):
+                        if button["action"] == "play":
+                            menu_running = False  # Cerrar el menú para empezar el juego
+                        elif button["action"] == "highscore":
+                            pass  # Por ahora, no hace nada
+                        elif button["action"] == "exit":
+                            pygame.quit()
+                            sys.exit(0)
+        
+        clock.tick(60)  # Limitar a 60 FPS
+
 def main():
+
+    show_menu()  # Mostrar el menú al inicio
 
     while True:
         collision()
