@@ -53,7 +53,9 @@ player_missiles = []
 explosion_list = []
 shelter = [True, True, True, True, True, True]
 
-#TODO: change to silo
+player_speed = 10    # 0.2
+enemy_speed = 1    # 0.04
+
 launcher_list = [Launcher(0), Launcher(1), Launcher(2)]
 launcher_positions = [SCREEN_WIDTH/9 - half, 5*SCREEN_WIDTH/9 - half, 9*SCREEN_WIDTH/9 - half]
 
@@ -154,17 +156,17 @@ def draw():
     # Dibuja las explosiones
     for w in explosion_list:
         if w.expires:
-            w.frame -= 2
+            w.frame -= 1
             if w.frame == 0:
                 explosion_list.remove(w)
                 del w
                 continue
-        elif w.frame == 1500:
+        elif w.frame == 60:
             w.expires = True
         else:
             w.frame += 1
         pygame.draw.ellipse(screen, random.choice(colors_list),
-                            (w.poz_x-w.frame/60, w.poz_y-w.frame/60, w.frame/30, w.frame/30), 0)
+                            (w.poz_x-w.frame/2, w.poz_y-w.frame/2, w.frame, w.frame), 0)
         
     # Dibuja los puntajes
     draw_scores(screen, player_score, high_score)
@@ -213,7 +215,7 @@ def launch_rocket(x, y):
         launcher_list[2].ammo -= 1
     else:
         return
-    player_missiles.append(Missile(launcher_position, SCREEN_HEIGHT - SHELTER_HEIGHT, x, y, 0.2, 0))
+    player_missiles.append(Missile(launcher_position, SCREEN_HEIGHT - SHELTER_HEIGHT, x, y, player_speed, 0))
 
 def middle_point(x, y, wx, wy, r):
     p = ((math.pow((x - wx), 2) // math.pow(r+1, 2)) + 
@@ -231,7 +233,7 @@ def collision():
             continue
         
         for w in explosion_list:
-            if middle_point(p.current_x, p.current_y, w.poz_x, w.poz_y, w.frame / 60) < 1:
+            if middle_point(p.current_x, p.current_y, w.poz_x, w.poz_y, w.frame / 2) < 1:
                 temp = Explosion(p.current_x, p.current_y)
                 explosion_list.append(temp)
                 player_missiles.remove(p)
@@ -265,7 +267,7 @@ def collision():
             continue
         
         for w in explosion_list:
-            if middle_point(p.current_x, p.current_y, w.poz_x, w.poz_y, w.frame / 60) < 1:
+            if middle_point(p.current_x, p.current_y, w.poz_x, w.poz_y, w.frame / 2) < 1:
                 temp = Explosion(p.current_x, p.current_y)
                 explosion_list.append(temp)
                 enemy_missiles.remove(p)
@@ -282,7 +284,7 @@ def new_level():
         level += 1
         for _ in range(10):
             temp = Missile(random.randrange(SCREEN_WIDTH), -10,
-                           random.choice(shelter_positions), SCREEN_HEIGHT - GROUND_HEIGHT, 0.04, random.randrange(4000))
+                           random.choice(shelter_positions), SCREEN_HEIGHT - GROUND_HEIGHT, enemy_speed, random.randrange(120))
             enemy_missiles.append(temp)
 
 def lose():
@@ -333,6 +335,6 @@ def main():
                 x, y = pygame.mouse.get_pos()
                 launch_rocket(x, y)
         
-        #clock.tick(60)
+        clock.tick(60)
 
 main()
