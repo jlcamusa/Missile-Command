@@ -246,14 +246,7 @@ def collision():
             player_missiles.remove(p)
             del p
             continue
-        
-        for w in explosion_list:
-            if middle_point(p.current_x, p.current_y, w.poz_x, w.poz_y, w.frame / 2) < 1:
-                temp = Explosion(p.current_x, p.current_y)
-                explosion_list.append(temp)
-                player_missiles.remove(p)
-                del p
-                break
+                
     for p in enemy_missiles:
         if p.current_y-p.end_y > -0.1:
             temp = Explosion(p.current_x, p.current_y)
