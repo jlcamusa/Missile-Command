@@ -84,13 +84,15 @@ def shoot_missiles(bomber):
             enemy_missiles.append(missile)
 
 def add_bomber(level):
+    wait = 0
     if level % 2 == 0:
         for _ in range(level // 2):
-            enemy_bombers.append(Bomber(random.choice([0, SCREEN_WIDTH]), random.randint(SHELTER_HEIGHT, SCREEN_HEIGHT - 4 * SHELTER_HEIGHT), SCREEN_WIDTH / 600, INFO, 'assets/sprites/plane.png'))
+            enemy_bombers.append(Bomber(random.choice([-50, SCREEN_WIDTH + 50]), random.randint(SHELTER_HEIGHT, SCREEN_HEIGHT - 4 * SHELTER_HEIGHT), SCREEN_WIDTH / 600, INFO, 'assets/sprites/plane.png', wait))
+            wait += 300
     else:
         for _ in range(level // 2):
-            enemy_bombers.append(Bomber(random.choice([0, SCREEN_WIDTH]), random.randint(SHELTER_HEIGHT, SCREEN_HEIGHT - 4 * SHELTER_HEIGHT), SCREEN_WIDTH / 600, INFO, 'assets/sprites/satellite.png'))
-
+            enemy_bombers.append(Bomber(random.choice([-50, SCREEN_WIDTH + 50]), random.randint(SHELTER_HEIGHT, SCREEN_HEIGHT - 4 * SHELTER_HEIGHT), SCREEN_WIDTH / 600, INFO, 'assets/sprites/satellite.png', wait))
+            wait += 300
 def draw_bomber(bomber, screen):
         screen.blit(bomber.image, (bomber.x, bomber.y))
         bomber.shoot_timer -= 1
