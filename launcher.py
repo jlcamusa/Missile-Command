@@ -1,5 +1,3 @@
-
-
 class Launcher:
     working = True
     ammo = 10

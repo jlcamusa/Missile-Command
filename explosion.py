@@ -1,5 +1,3 @@
-
-
 class Explosion:
     frame = 0
     expires = False

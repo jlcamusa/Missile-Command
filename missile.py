@@ -1,6 +1,5 @@
 import math
 
-
 class Missile:
 
     def __init__(self, sx, sy, kx, ky, ss, wait):

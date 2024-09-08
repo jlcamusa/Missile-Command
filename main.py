@@ -2,10 +2,12 @@ import pygame
 import sys
 import random
 import math
+import random
 
 from launcher import Launcher
 from missile import Missile
 from explosion import Explosion
+from bomber import Bomber
 
 # Inicializar Pygame
 pygame.init()
@@ -47,6 +49,7 @@ shelter_positions = [SCREEN_WIDTH/9 - half, 2*SCREEN_WIDTH/9 - half,
                      9*SCREEN_WIDTH/9 - half]
 
 enemy_missiles = []
+enemy_bombers = []
 enemies = []
 level = 0
 player_missiles = []
@@ -72,6 +75,28 @@ BLUE = pygame.Color(0, 0, 255)
 colors_list = [GREEN, RED, YELLOW,
                CYAN, PURPLE, WHITE,
                BLUE]
+
+def shoot_missiles(bomber):
+        num_missiles = random.randint(2, 3)
+        for _ in range(num_missiles):
+            target_x = random.choice(shelter_positions)
+            missile = Missile(bomber.x + bomber.width // 2, bomber.y + bomber.height, target_x, SCREEN_HEIGHT - GROUND_HEIGHT, enemy_speed, 0)
+            enemy_missiles.append(missile)
+
+def add_bomber(level):
+    if level % 2 == 0:
+        for _ in range(level // 2):
+            enemy_bombers.append(Bomber(random.choice([0, SCREEN_WIDTH]), random.randint(SHELTER_HEIGHT, SCREEN_HEIGHT - 4 * SHELTER_HEIGHT), SCREEN_WIDTH / 600, INFO, 'assets/sprites/plane.png'))
+    else:
+        for _ in range(level // 2):
+            enemy_bombers.append(Bomber(random.choice([0, SCREEN_WIDTH]), random.randint(SHELTER_HEIGHT, SCREEN_HEIGHT - 4 * SHELTER_HEIGHT), SCREEN_WIDTH / 600, INFO, 'assets/sprites/satellite.png'))
+
+def draw_bomber(bomber, screen):
+        screen.blit(bomber.image, (bomber.x, bomber.y))
+        bomber.shoot_timer -= 1
+        if bomber.shoot_timer <= 0:
+            shoot_missiles(bomber)
+            bomber.shoot_timer = random.randint(180, 300)  # Reiniciar el temporizador
 
 def draw_scores(screen, player_score, high_score):
     
@@ -185,6 +210,13 @@ def draw():
         
     # Dibuja los puntajes
     draw_scores(screen, player_score, high_score)
+
+    # Dibuja los aviones y elimina los que se salen de la pantalla
+    for bomber in enemy_bombers[:]:
+        if bomber.move(SCREEN_WIDTH):
+            enemy_bombers.remove(bomber)
+        else:
+            draw_bomber(bomber, screen)
     
     pygame.display.update()
 
@@ -282,18 +314,35 @@ def collision():
                 del p
                 break
 
+        # Colisión con aviones
+        for bomber in enemy_bombers:
+            for w in explosion_list:
+                if middle_point(bomber.x + bomber.width / 2, bomber.y + bomber.height / 2, w.poz_x, w.poz_y, w.frame / 2) < 1:
+                    enemy_bombers.remove(bomber)
+                    break
+
 def new_level():
-    if not enemy_missiles:
+    if not enemy_missiles and not enemy_bombers:
         launcher_list[0].ammo = 10
         launcher_list[1].ammo = 10
         launcher_list[2].ammo = 10
         explosion_list.clear()
         global level
         level += 1
-        for _ in range(10):
-            temp = Missile(random.randrange(SCREEN_WIDTH), -10,
-                           random.choice(shelter_positions), SCREEN_HEIGHT - GROUND_HEIGHT, enemy_speed, random.randrange(120))
+        # for _ in range(10):
+        #     temp = Missile(random.randrange(SCREEN_WIDTH), -10,
+        #                    random.choice(shelter_positions), SCREEN_HEIGHT - GROUND_HEIGHT, enemy_speed, random.randrange(120))
+        for i in range (8 + (level-1) * 4):
+            wait = 300 * (i // 8)
+            if i < 8:
+                temp = Missile(random.randrange(SCREEN_WIDTH), -10,
+                           random.choice(shelter_positions), SCREEN_HEIGHT - GROUND_HEIGHT, enemy_speed, 0)
+            else:
+                temp = Missile(random.randrange(SCREEN_WIDTH), -10,
+                           random.choice(shelter_positions), SCREEN_HEIGHT - GROUND_HEIGHT, enemy_speed, random.randrange(wait, wait + 300))
             enemy_missiles.append(temp)
+        
+        add_bomber(level)
 
 def lose():
     for i in shelter:
