@@ -331,9 +331,7 @@ def new_level():
         explosion_list.clear()
         global level
         level += 1
-        # for _ in range(10):
-        #     temp = Missile(random.randrange(SCREEN_WIDTH), -10,
-        #                    random.choice(shelter_positions), SCREEN_HEIGHT - GROUND_HEIGHT, enemy_speed, random.randrange(120))
+       
         for i in range (8 + (level-1) * 4):
             wait = 300 * (i // 8)
             if i < 8:
