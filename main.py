@@ -4,6 +4,7 @@ import random
 import math
 import random
 import time
+import json
 
 from launcher import Launcher
 from missile import Missile
@@ -63,6 +64,10 @@ enemy_speed = 1    # 0.04
 launcher_list = [Launcher(0), Launcher(1), Launcher(2)]
 launcher_positions = [SCREEN_WIDTH/9 - half, 5*SCREEN_WIDTH/9 - half, 9*SCREEN_WIDTH/9 - half]
 
+#Variables globales para el manejo de puntajes altos
+HIGH_SCORES_FILE= "high_scores.json"
+MAX_HIGH_SCORES = 10
+
 # Definir los colores
 BLACK = pygame.Color(0,0,0)
 GREEN = pygame.Color(0, 255, 0)
@@ -76,6 +81,96 @@ BLUE = pygame.Color(0, 0, 255)
 colors_list = [GREEN, RED, YELLOW,
                CYAN, PURPLE, WHITE,
                BLUE]
+
+def load_high_scores():
+    try:
+        with open(HIGH_SCORES_FILE, "r") as file:
+            content = file.read()
+            if content:
+                return json.loads(content)
+            else:
+                return []
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+
+
+def save_high_scores(scores):
+    with open(HIGH_SCORES_FILE, "w") as file:
+        json.dump(scores, file)
+
+def add_high_score(name, score):
+    scores = load_high_scores()
+    scores.append({"name": name, "score": score})
+    scores.sort(key=lambda x: x["score"], reverse=True)
+    save_high_scores(scores[:MAX_HIGH_SCORES])
+
+def get_player_name(screen):
+    name = ""
+    input_active = True
+    while input_active:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    input_active = False
+                elif event.key == pygame.K_BACKSPACE:
+                    name = name[:-1]
+                else:
+                    name += event.unicode
+        
+        screen.fill(BLACK)
+        text_surface = font.render("Enter your name: " + name, True, WHITE)
+        text_rect = text_surface.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
+        screen.blit(text_surface, text_rect)
+        pygame.display.flip()
+        clock.tick(30)
+    
+    return name
+def show_high_scores(screen):
+    scores = load_high_scores()
+    running = True
+    
+    # Define button properties
+    button_font = pygame.font.Font(None, 36)
+    button_color = (100, 100, 255)
+    button_hover_color = (150, 150, 255)
+    button_text = "Return to Menu"
+    button_pos = (SCREEN_WIDTH // 2, SCREEN_HEIGHT - 50)
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if close_button_rect.collidepoint(event.pos):
+                    running = False
+
+        screen.fill(BLACK)
+        
+        # Draw title
+        title_surface = font.render("High Scores", True, WHITE)
+        title_rect = title_surface.get_rect(center=(SCREEN_WIDTH/2, 50))
+        screen.blit(title_surface, title_rect)
+        
+        # Draw scores
+        for i, score in enumerate(scores):
+            text = f"{i+1}. {score['name']}: {score['score']}"
+            score_surface = font.render(text, True, WHITE)
+            score_rect = score_surface.get_rect(center=(SCREEN_WIDTH/2, 100 + i*30))
+            screen.blit(score_surface, score_rect)
+        
+        # Draw close button
+        mouse_pos = pygame.mouse.get_pos()
+        close_button_rect = draw_button(button_text, button_pos, button_font, button_color, button_hover_color)
+
+        pygame.display.flip()
+        clock.tick(30)
 
 def score_count(screen):
     global player_score, shelter
@@ -505,6 +600,10 @@ def lose():
                 quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
+
+                    player_name = get_player_name(screen)
+                    add_high_score(player_name, player_score)
+
                     launcher_list[0].ammo = 10
                     launcher_list[1].ammo = 10
                     launcher_list[2].ammo = 10
@@ -534,7 +633,7 @@ def show_menu():
         screen.fill((0, 0, 0))  # Fondo negro
         
         # Dibujar el título
-        title_text = font.render("Mi Juego", True, (255, 255, 255))
+        title_text = font.render("Missile Command", True, (255, 255, 255))
         title_text_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 150))
         screen.blit(title_text, title_text_rect)
         
@@ -559,7 +658,7 @@ def show_menu():
                         if button["action"] == "play":
                             menu_running = False  # Cerrar el menú para empezar el juego
                         elif button["action"] == "highscore":
-                            pass  # Por ahora, no hace nada
+                            show_high_scores(screen)
                         elif button["action"] == "exit":
                             pygame.quit()
                             sys.exit(0)
@@ -567,7 +666,7 @@ def show_menu():
         clock.tick(60)  # Limitar a 60 FPS
 
 def main():
-
+    global player_score, level
     show_menu()  # Mostrar el menú al inicio
 
     while True:
