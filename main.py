@@ -93,10 +93,11 @@ def add_bomber(level):
         for _ in range(level // 2):
             enemy_bombers.append(Bomber(random.choice([-50, SCREEN_WIDTH + 50]), random.randint(SHELTER_HEIGHT, SCREEN_HEIGHT - 4 * SHELTER_HEIGHT), SCREEN_WIDTH / 600, INFO, 'assets/sprites/satellite.png', wait))
             wait += 300
+
 def draw_bomber(bomber, screen):
         screen.blit(bomber.image, (bomber.x, bomber.y))
         bomber.shoot_timer -= 1
-        if bomber.shoot_timer <= 0:
+        if bomber.shoot_timer <= 0 and (10 < bomber.x < SCREEN_WIDTH - 10):
             shoot_missiles(bomber)
             bomber.shoot_timer = random.randint(180, 300)  # Reiniciar el temporizador
 
@@ -332,7 +333,7 @@ def new_level():
         global level
         level += 1
        
-        for i in range (8 + (level-1) * 4):
+        for i in range (8 + level - 1):
             wait = 300 * (i // 8)
             if i < 8:
                 temp = Missile(random.randrange(SCREEN_WIDTH), -10,
