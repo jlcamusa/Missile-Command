@@ -13,6 +13,16 @@ from bomber import Bomber
 
 # Inicializar Pygame
 pygame.init()
+pygame.mixer.init()
+
+# Sonidos
+missile_sfx = pygame.mixer.Sound("assets/sounds/explode.mp3")
+missile_count_sfx = pygame.mixer.Sound("assets/sounds/roll-up.mp3")
+shelter_count_sfx = pygame.mixer.Sound("assets/sounds/roll-up-2.mp3")
+final_sfx = pygame.mixer.Sound("assets/sounds/finale.mp3")
+
+# Musica
+pygame.mixer.music.load("assets/music/menu.mp3")
 
 # Cambiar cursor
 pygame.mouse.set_cursor(*pygame.cursors.diamond)
@@ -93,7 +103,6 @@ def load_high_scores():
     except (FileNotFoundError, json.JSONDecodeError):
         return []
 
-
 def save_high_scores(scores):
     with open(HIGH_SCORES_FILE, "w") as file:
         json.dump(scores, file)
@@ -128,6 +137,7 @@ def get_player_name(screen):
         clock.tick(30)
     
     return name
+
 def show_high_scores(screen):
     scores = load_high_scores()
     running = True
@@ -188,6 +198,7 @@ def score_count(screen):
         if current_time - start_time >= 2/30:
             player_score += 5 * ((level + 1) // 2)
             ammo -= 1
+            missile_count_sfx.play( maxtime= 200)
 
             if launcher_list[2].ammo > 0:
                 launcher_list[2].ammo -= 1
@@ -245,6 +256,7 @@ def score_count(screen):
         if current_time - start_time >= 2/6:
             player_score += 100 * ((level + 1) // 2)
             cities -= 1
+            shelter_count_sfx.play(maxtime= int(1000 * 1/6))
 
             max_true_index = max(index for index, value in enumerate(shelter) if value)
             shelter[max_true_index] = False
@@ -500,6 +512,7 @@ def collision():
             explosion_list.append(temp)
             player_missiles.remove(p)
             del p
+            missile_sfx.play()
             continue
                 
     for p in enemy_missiles:
@@ -527,6 +540,7 @@ def collision():
             lose()
             enemy_missiles.remove(p)
             del p
+            missile_sfx.play()
             continue
         
         for w in explosion_list:
@@ -535,6 +549,7 @@ def collision():
                 explosion_list.append(temp)
                 enemy_missiles.remove(p)
                 del p
+                missile_sfx.play()
                 player_score += 25 * ((level + 1) // 2) 
                 break
 
@@ -592,6 +607,8 @@ def lose():
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2))
     screen.blit(text_surface, text_rect)
     
+    final_sfx.play()
+
     pygame.display.update()
     while True:
         for event in pygame.event.get():
@@ -617,6 +634,9 @@ def lose():
                     main()
 
 def show_menu():
+    # Reproducir la música en bucle indefinido
+    pygame.mixer.music.play(-1)
+
     # Definir los botones
     button_font = pygame.font.Font(None, 50)
     button_color = (100, 100, 255)
@@ -657,6 +677,7 @@ def show_menu():
                     if button["rect"].collidepoint(mouse_pos):
                         if button["action"] == "play":
                             menu_running = False  # Cerrar el menú para empezar el juego
+                            pygame.mixer.music.stop() # Detener musica del menu
                         elif button["action"] == "highscore":
                             show_high_scores(screen)
                         elif button["action"] == "exit":
