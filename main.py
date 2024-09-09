@@ -3,6 +3,7 @@ import sys
 import random
 import math
 import random
+import time
 
 from launcher import Launcher
 from missile import Missile
@@ -75,6 +76,128 @@ BLUE = pygame.Color(0, 0, 255)
 colors_list = [GREEN, RED, YELLOW,
                CYAN, PURPLE, WHITE,
                BLUE]
+
+def score_count(screen):
+    global player_score, shelter
+
+    bool_cities = shelter[:]
+    cities = bool_cities.count(True)    
+    ammo = launcher_list[0].ammo + launcher_list[1].ammo + launcher_list[2].ammo
+
+    start_time = time.time()
+
+    # Contabilizar municion no usada
+    while ammo > 0:
+        # Pausar el juego para cada incremento de puntuación
+        current_time = time.time()
+        if current_time - start_time >= 2/30:
+            player_score += 5 * ((level + 1) // 2)
+            ammo -= 1
+
+            if launcher_list[2].ammo > 0:
+                launcher_list[2].ammo -= 1
+            elif launcher_list[1].ammo > 0:
+                launcher_list[1].ammo -= 1
+            elif launcher_list[0].ammo > 0:
+                launcher_list[0].ammo -= 1
+
+            start_time = current_time
+        
+        # Limpiar la pantalla y dibujar la puntuación
+        draw()
+
+        # Texto puntaje
+        text_surface = font.render("Score : " + str(player_score), True, (255, 0, 0))
+        text_rect = text_surface.get_rect(center=((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2 - 100)))
+        screen.blit(text_surface, text_rect)
+        
+        # Misiles
+        ellipse_width = SCREEN_WIDTH / 100
+        ellipse_height = SCREEN_WIDTH / 100
+        ellipses_per_line = 10
+        ellipse_spacing = 20
+
+        for i in range(ammo):
+            row = i // ellipses_per_line
+            col = i % ellipses_per_line
+            ellipse_x = SCREEN_WIDTH / 2 - (ellipses_per_line * ellipse_width + (ellipses_per_line - 1) * ellipse_spacing) / 2 + col * (ellipse_width + ellipse_spacing)
+            ellipse_y = SCREEN_HEIGHT / 2 - 50 + row * (ellipse_height + 10)
+            ellipse_rect = (ellipse_x, ellipse_y, ellipse_width, ellipse_height)
+            pygame.draw.ellipse(screen, colors_list[6], ellipse_rect)
+
+        # Dibujar los rectángulos para las ciudades
+        rect_width =  SHELTER_HEIGHT / 2
+        rect_height =  SHELTER_HEIGHT / 3
+        rect_spacing = 20
+        total_rects_width = cities * rect_width + (cities - 1) * rect_spacing
+
+        for i in range(cities):
+            rect_x = SCREEN_WIDTH / 2 - total_rects_width / 2 + i * (rect_width + rect_spacing)
+            rect_y = SCREEN_HEIGHT / 2 + 50
+            rect_rect = (rect_x, rect_y, rect_width, rect_height)
+            pygame.draw.rect(screen, colors_list[6], rect_rect)
+
+        # Actualizar la pantalla
+        pygame.display.flip()
+
+        # Mantener la tasa de cuadros por segundo
+        pygame.time.delay(200)  # Esperar 100ms (equivalente a 10 FPS durante la pausa)
+
+    # Contar ciudades restantes
+    while cities > 0:
+        # Pausar el juego para cada incremento de puntuación
+        current_time = time.time()
+        if current_time - start_time >= 2/6:
+            player_score += 100 * ((level + 1) // 2)
+            cities -= 1
+
+            max_true_index = max(index for index, value in enumerate(shelter) if value)
+            shelter[max_true_index] = False
+
+            start_time = current_time
+        
+        # Limpiar la pantalla y dibujar la puntuación
+        draw()
+
+        # Texto puntaje
+        text_surface = font.render("Score : " + str(player_score), True, (255, 0, 0))
+        text_rect = text_surface.get_rect(center=((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2 - 100)))
+        screen.blit(text_surface, text_rect)
+        
+        # Misiles
+        ellipse_width = SCREEN_WIDTH / 100
+        ellipse_height = SCREEN_WIDTH / 100
+        ellipses_per_line = 10
+        ellipse_spacing = 20
+
+        for i in range(ammo):
+            row = i // ellipses_per_line
+            col = i % ellipses_per_line
+            ellipse_x = SCREEN_WIDTH / 2 - (ellipses_per_line * ellipse_width + (ellipses_per_line - 1) * ellipse_spacing) / 2 + col * (ellipse_width + ellipse_spacing)
+            ellipse_y = SCREEN_HEIGHT / 2 - 50 + row * (ellipse_height + 10)
+            ellipse_rect = (ellipse_x, ellipse_y, ellipse_width, ellipse_height)
+            pygame.draw.ellipse(screen, colors_list[6], ellipse_rect)
+
+        # Dibujar los rectángulos para las ciudades
+        rect_width =  SHELTER_HEIGHT / 2
+        rect_height =  SHELTER_HEIGHT / 3
+        rect_spacing = 20
+        total_rects_width = cities * rect_width + (cities - 1) * rect_spacing
+
+        for i in range(cities):
+            rect_x = SCREEN_WIDTH / 2 - total_rects_width / 2 + i * (rect_width + rect_spacing)
+            rect_y = SCREEN_HEIGHT / 2 + 50
+            rect_rect = (rect_x, rect_y, rect_width, rect_height)
+            pygame.draw.rect(screen, colors_list[6], rect_rect)
+
+        # Actualizar la pantalla
+        pygame.display.flip()
+
+        # Mantener la tasa de cuadros por segundo
+        pygame.time.delay(200)  # Esperar 100ms (equivalente a 10 FPS durante la pausa)
+
+    shelter = bool_cities[:]
+    pygame.time.delay(1000)
 
 def shoot_missiles(bomber):
         num_missiles = random.randint(2, 3)
@@ -274,6 +397,8 @@ def middle_point(x, y, wx, wy, r):
     return p
 
 def collision():
+    global player_score
+
     for p in player_missiles:
         if p.current_y-p.end_y < 0.1:
             temp = Explosion(p.current_x, p.current_y)
@@ -315,6 +440,7 @@ def collision():
                 explosion_list.append(temp)
                 enemy_missiles.remove(p)
                 del p
+                player_score += 25 * ((level + 1) // 2) 
                 break
 
         # Colisión con aviones
@@ -322,15 +448,24 @@ def collision():
             for w in explosion_list:
                 if middle_point(bomber.x + bomber.width / 2, bomber.y + bomber.height / 2, w.poz_x, w.poz_y, w.frame / 2) < 1:
                     enemy_bombers.remove(bomber)
+                    player_score += 100 * ((level + 1) // 2) 
                     break
 
 def new_level():
+    global level, screen
+    
     if not enemy_missiles and not enemy_bombers:
+
+        del explosion_list[:]
+        del player_missiles[:]
+
+        if level != 0:
+            score_count(screen)
+
         launcher_list[0].ammo = 10
         launcher_list[1].ammo = 10
         launcher_list[2].ammo = 10
         explosion_list.clear()
-        global level
         level += 1
        
         for i in range (8 + level - 1):
@@ -352,6 +487,7 @@ def lose():
     del explosion_list[:]
     del player_missiles[:]
     del enemy_missiles[:]
+    del enemy_bombers[:]
     global level
     draw()
     text_surface = font.render("Survived waves : " + str(level) +
