@@ -488,8 +488,9 @@ def lose():
     del player_missiles[:]
     del enemy_missiles[:]
     del enemy_bombers[:]
-    global level
+    global level, player_score
     draw()
+    player_score = 0
     text_surface = font.render("Survived waves : " + str(level) +
                                      " Press space to start again", True, (255, 0, 0))
     text_rect = text_surface.get_rect()
