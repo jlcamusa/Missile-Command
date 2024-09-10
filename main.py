@@ -615,7 +615,6 @@ def lose():
     del enemy_bombers[:]
     global level, player_score
     draw()
-    player_score = 0
     text_surface = font.render("Survived waves : " + str(level) +
                                      " Press space to start again", True, (255, 0, 0))
     text_rect = text_surface.get_rect()
@@ -635,7 +634,7 @@ def lose():
 
                     player_name = get_player_name(screen)
                     add_high_score(player_name, player_score)
-
+                    player_score = 0
                     launcher_list[0].ammo = 10
                     launcher_list[1].ammo = 10
                     launcher_list[2].ammo = 10
