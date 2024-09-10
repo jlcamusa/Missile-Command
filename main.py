@@ -497,6 +497,21 @@ def launch_rocket(x, y):
         return
     player_missiles.append(Missile(launcher_position, SCREEN_HEIGHT - SHELTER_HEIGHT, x, y, player_speed, 0))
 
+def launch_specific_rocket(x, y, launcher_position):
+    if y > SCREEN_HEIGHT-SHELTER_HEIGHT*1.4:
+        return
+
+    if launcher_position == launcher_positions[0] and launcher_list[0].ammo > 0:
+        launcher_list[0].ammo -= 1
+    elif launcher_position == launcher_positions[1] and launcher_list[1].ammo > 0:
+        launcher_list[1].ammo -= 1
+    elif launcher_position == launcher_positions[2] and launcher_list[2].ammo > 0:
+        launcher_list[2].ammo -= 1
+    else:
+        return
+    player_missiles.append(Missile(launcher_position, SCREEN_HEIGHT - SHELTER_HEIGHT, x, y, player_speed, 0))
+
+
 def middle_point(x, y, wx, wy, r):
     p = ((math.pow((x - wx), 2) // math.pow(r+1, 2)) + 
          (math.pow((y - wy), 2) // math.pow(r+1, 2))) 
@@ -700,6 +715,18 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
                 launch_rocket(x, y)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    x, y = pygame.mouse.get_pos()
+                    launch_specific_rocket(x, y, launcher_positions[0])
+                elif event.key == pygame.K_w:
+                    x, y = pygame.mouse.get_pos()
+                    launch_specific_rocket(x, y, launcher_positions[1])
+                elif event.key == pygame.K_e:
+                    x, y = pygame.mouse.get_pos()
+                    launch_specific_rocket(x, y, launcher_positions[2])
+
+
         
         clock.tick(60)
 
