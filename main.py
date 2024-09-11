@@ -217,7 +217,7 @@ def score_count(screen):
 
         # Texto puntaje
         text_surface = font.render("Score : " + str(player_score), True, (255, 0, 0))
-        text_rect = text_surface.get_rect(center=((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2 - 100)))
+        text_rect = text_surface.get_rect(center=((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2 - 80)))
         screen.blit(text_surface, text_rect)
         
         # Misiles
@@ -271,7 +271,7 @@ def score_count(screen):
 
         # Texto puntaje
         text_surface = font.render("Score : " + str(player_score), True, (255, 0, 0))
-        text_rect = text_surface.get_rect(center=((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2 - 100)))
+        text_rect = text_surface.get_rect(center=((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2 - 80)))
         screen.blit(text_surface, text_rect)
         
         # Misiles
@@ -296,7 +296,7 @@ def score_count(screen):
 
         for i in range(cities):
             rect_x = SCREEN_WIDTH / 2 - total_rects_width / 2 + i * (rect_width + rect_spacing)
-            rect_y = SCREEN_HEIGHT / 2 + 50
+            rect_y = SCREEN_HEIGHT / 2 
             rect_rect = (rect_x, rect_y, rect_width, rect_height)
             pygame.draw.rect(screen, colors_list[6], rect_rect)
 
@@ -351,19 +351,19 @@ def draw_city(screen, x, y, width, height, city_index):
     # Colores
     BUILDING_COLOR = BLUE  
     
-    # Dibujar el suelo
+    # Dibuja el suelo de la ciudad
     pygame.draw.rect(screen, (50, 50, 50), (x, y + height * 0.9, width, height * 0.1))
     
-    # Dibujar edificios
+    # Dibuja edificios
     for i, building_height_factor in enumerate(city_data[city_index]):
         building_width = width / 7
         building_height = building_height_factor * height
-        building_x = x + (i + 1) * width / 7 - building_width / 2
-        building_y = y + height - building_height
+        building_x = x + (i + 0.5) * width / 7 - building_width / 2
+        building_y = y + height * 1.15 - building_height  # Ajusta la altura aquí
         
-        # Dibujar el edificio
+        # Dibuja el edificio
         pygame.draw.rect(screen, BUILDING_COLOR, (building_x, building_y, building_width, building_height))
-        
+
         
 
 def draw_scores(screen, player_score, high_score):
