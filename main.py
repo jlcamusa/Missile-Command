@@ -800,7 +800,7 @@ def show_instructions(screen):
         
         clock.tick(30)
 def main():
-    global player_score, level
+    global player_score, level, shelter
     initialize_cities()
     show_menu()  # Mostrar el menú al inicio
 
@@ -824,7 +824,9 @@ def main():
                 elif event.key == pygame.K_e:
                     x, y = pygame.mouse.get_pos()
                     launch_specific_rocket(x, y, launcher_positions[2])
-
+                elif event.key == pygame.K_ESCAPE:
+                    shelter = [False, False, False, False, False, False]
+                    lose()
 
         
         clock.tick(60)
