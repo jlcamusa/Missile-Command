@@ -21,6 +21,8 @@ missile_count_sfx = pygame.mixer.Sound("assets/sounds/roll-up.mp3")
 shelter_count_sfx = pygame.mixer.Sound("assets/sounds/roll-up-2.mp3")
 final_sfx = pygame.mixer.Sound("assets/sounds/finale.mp3")
 
+final_sfx.set_volume(0.5)
+
 # Musica
 pygame.mixer.music.load("assets/music/menu.mp3")
 
