@@ -718,6 +718,7 @@ def show_menu():
     buttons = [
         {"text": "Play", "action": "play"},
         {"text": "HighScore", "action": "highscore"},
+        {"text": "Instructions", "action": "instructions"},
         {"text": "Exit", "action": "exit"}
     ]
     
@@ -727,16 +728,19 @@ def show_menu():
         
         # Dibujar el título
         title_text = font.render("Missile Command", True, (255, 255, 255))
-        title_text_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 150))
+        title_text_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 200))  # Ajustar posición del título
         screen.blit(title_text, title_text_rect)
         
         # Dibujar los botones
         button_rects = []
         y_offset = 0
+        initial_y_pos = SCREEN_HEIGHT // 2 - 100  # Ajusta la posición inicial de los botones
+
         for button in buttons:
-            button_rect = draw_button(button["text"], (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + y_offset), button_font, button_color, button_hover_color)
+            button_rect = draw_button(button["text"], (SCREEN_WIDTH // 2, initial_y_pos + y_offset), button_font, button_color, button_hover_color)
             button_rects.append({"rect": button_rect, "action": button["action"]})
-            y_offset += 70  # Espacio entre botones
+            y_offset += 60  # Ajustar el espaciado entre botones (puedes reducirlo si lo prefieres)
+        
         
         pygame.display.flip()
         
@@ -753,12 +757,48 @@ def show_menu():
                             pygame.mixer.music.stop() # Detener musica del menu
                         elif button["action"] == "highscore":
                             show_high_scores(screen)
+                        elif button["action"] == "instructions":  # Nueva acción para instrucciones
+                            show_instructions(screen)
                         elif button["action"] == "exit":
                             pygame.quit()
                             sys.exit(0)
         
         clock.tick(60)  # Limitar a 60 FPS
-
+def show_instructions(screen):
+    instructions = [
+        "Missile Command - Instrucciones",
+        "",
+        "1. Defiende tus ciudades de los misiles enemigos.",
+        "2. Usa el ratón para lanzar misiles desde tus silos.",
+        "3. Haz clic en el área para disparar misiles.",
+        "4. Cada misil que impacte a un enemigo te da puntos.",
+        "5. El juego termina cuando todas tus ciudades han sido destruidas.",
+        "",
+        "Presiona ESC para volver al menú principal."
+    ]
+    
+    running = True
+    while running:
+        screen.fill(BLACK)
+        
+        # Dibujar las instrucciones
+        for i, line in enumerate(instructions):
+            text_surface = font.render(line, True, WHITE)
+            text_rect = text_surface.get_rect(center=(SCREEN_WIDTH/2, 50 + i*30))
+            screen.blit(text_surface, text_rect)
+        
+        pygame.display.flip()
+        
+        # Eventos para volver al menú principal
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit(0)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+        
+        clock.tick(30)
 def main():
     global player_score, level
     initialize_cities()
