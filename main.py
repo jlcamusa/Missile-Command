@@ -47,7 +47,6 @@ font = pygame.font.SysFont("consolas", int(SCREEN_HEIGHT * 0.035))
 
 # Inicializa puntajes
 player_score = 0
-high_score = 1000  # Puedes establecer un valor inicial o cargarlo desde un archivo
 
 # Configurar el título de la ventana
 pygame.display.set_caption("Missile Command")
@@ -108,10 +107,33 @@ def save_high_scores(scores):
         json.dump(scores, file)
 
 def add_high_score(name, score):
+    global high_score
     scores = load_high_scores()
-    scores.append({"name": name, "score": score})
+    
+    existing_entry = next((item for item in scores if item["name"] == name), None)
+    
+    if existing_entry:
+        # Si el nombre existe, actualizar el puntaje si es mayor
+        if score > existing_entry["score"]:
+            existing_entry["score"] = score
+    else:
+        # Si el nombre no existe, agregar una nueva entrada
+        scores.append({"name": name, "score": score})
+    
+    # Ordenar los puntajes de mayor a menor
     scores.sort(key=lambda x: x["score"], reverse=True)
-    save_high_scores(scores[:MAX_HIGH_SCORES])
+    
+    scores = scores[:MAX_HIGH_SCORES]
+    save_high_scores(scores)
+    high_score = max(high_score, score)
+
+def get_highest_score():
+    scores = load_high_scores()
+    if scores:
+        return scores[0]["score"]
+    return 0  # Retorna 0 si no hay puntajes
+
+high_score = get_highest_score() # Puedes establecer un valor inicial o cargarlo desde un archivo
 
 def get_player_name(screen):
     name = ""
@@ -635,6 +657,8 @@ def lose():
                     player_name = get_player_name(screen)
                     add_high_score(player_name, player_score)
                     player_score = 0
+                    global high_score
+                    high_score = get_highest_score()
                     launcher_list[0].ammo = 10
                     launcher_list[1].ammo = 10
                     launcher_list[2].ammo = 10
