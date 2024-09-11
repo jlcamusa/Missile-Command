@@ -399,6 +399,11 @@ def draw_scores(screen, player_score, high_score):
     text_width = high_score_text.get_width()
     screen.blit(high_score_text, (SCREEN_WIDTH - text_width - 10, 10))
 
+    # Dibuja el mensaje "Hello World" en el centro superior
+    hello_world_text = font.render(f"X {((level + 1) // 2)}", True, WHITE)
+    hello_world_width = hello_world_text.get_width()
+    screen.blit(hello_world_text, (SCREEN_WIDTH // 2 - hello_world_width // 2, 10))
+
 def draw_button(text, pos, font, color, hover_color):
     button_text = font.render(text, True, (255, 255, 255))
     button_rect = button_text.get_rect(center=pos)
@@ -772,7 +777,8 @@ def show_instructions(screen):
         "2. Usa el ratón para lanzar misiles desde tus silos.",
         "3. Haz clic en el área para disparar misiles.",
         "4. Cada misil que impacte a un enemigo te da puntos.",
-        "5. El juego termina cuando todas tus ciudades han sido destruidas.",
+        "5. El juego termina cuando todas tus ciudades",
+        "han sido destruidas.",
         "",
         "Presiona ESC para volver al menú principal."
     ]

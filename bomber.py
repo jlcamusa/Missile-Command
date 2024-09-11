@@ -8,8 +8,10 @@ class Bomber:
         bomber_image = pygame.image.load(image)
         if image == 'assets/sprites/plane.png':
             self.image = pygame.transform.scale(bomber_image, (scale / 2, scale / 3))
+            self.speed = speed
         else:
             self.image = pygame.transform.scale(bomber_image, (scale / 2, scale / 2))
+            self.speed = speed * 1.5
         self.x = x
         self.y = y
         self.speed = speed
