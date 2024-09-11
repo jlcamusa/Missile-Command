@@ -712,6 +712,10 @@ def new_level():
         add_bomber(level)
 
 def lose():
+    global extra_life, min_score
+    extra_life = 0
+    min_score = 3000
+
     for i in shelter:
         if i:
             return
