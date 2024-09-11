@@ -74,7 +74,7 @@ enemies = []
 level = 0
 player_missiles = []
 explosion_list = []
-shelter = [True, False, False, False, False, False]
+shelter = [True, True, True, True, True, True]
 
 player_speed = SCREEN_HEIGHT / 48    # 0.2
 enemy_speed = SCREEN_HEIGHT / 480    # 0.04
