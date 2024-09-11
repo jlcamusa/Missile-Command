@@ -74,10 +74,10 @@ enemies = []
 level = 0
 player_missiles = []
 explosion_list = []
-shelter = [True, True, True, True, True, True]
+shelter = [True, False, False, False, False, False]
 
-player_speed = 10    # 0.2
-enemy_speed = 1    # 0.04
+player_speed = SCREEN_HEIGHT / 48    # 0.2
+enemy_speed = SCREEN_HEIGHT / 480    # 0.04
 
 launcher_list = [Launcher(0), Launcher(1), Launcher(2)]
 launcher_positions = [SCREEN_WIDTH/9 - half, 5*SCREEN_WIDTH/9 - half, 9*SCREEN_WIDTH/9 - half]
@@ -713,12 +713,13 @@ def new_level():
 
 def lose():
     global extra_life, min_score
-    extra_life = 0
-    min_score = 3000
 
     for i in shelter:
         if i:
             return
+    
+    extra_life = 0
+    min_score = 3000    
     del explosion_list[:]
     del player_missiles[:]
     del enemy_missiles[:]
