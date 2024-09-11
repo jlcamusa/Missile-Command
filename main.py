@@ -5,6 +5,7 @@ import math
 import random
 import time
 import json
+import os
 
 from launcher import Launcher
 from missile import Missile
@@ -14,6 +15,8 @@ from bomber import Bomber
 # Inicializar Pygame
 pygame.init()
 pygame.mixer.init()
+
+
 
 # Sonidos
 missile_sfx = pygame.mixer.Sound("assets/sounds/explode.mp3")
@@ -46,6 +49,7 @@ clock = pygame.time.Clock()
 
 # Configura la fuente para el texto
 font = pygame.font.SysFont("consolas", int(SCREEN_HEIGHT * 0.035))
+title_font = pygame.font.SysFont("consolas", int(SCREEN_HEIGHT * 0.1))
 
 # Inicializa puntajes
 player_score = 0
@@ -95,6 +99,14 @@ BLUE = pygame.Color(0, 0, 255)
 colors_list = [GREEN, RED, YELLOW,
                CYAN, PURPLE, WHITE,
                BLUE]
+
+# Cargar los fotogramas
+frames = []
+for i in range(1, 63):  # Suponiendo que tienes 10 fotogramas numerados como frame_1.png, frame_2.png, etc.
+    frame = pygame.image.load(os.path.join('assets/city_background', f'{i}.gif'))
+    frames.append(pygame.transform.scale(frame, (SCREEN_WIDTH, SCREEN_HEIGHT)))
+
+current_frame = 0
 
 def load_high_scores():
     try:
@@ -409,13 +421,13 @@ def draw_scores(screen, player_score, high_score):
 def draw_button(text, pos, font, color, hover_color):
     button_text = font.render(text, True, (255, 255, 255))
     button_rect = button_text.get_rect(center=pos)
-    
+
     # Efecto de hover
     mouse_pos = pygame.mouse.get_pos()
     if button_rect.collidepoint(mouse_pos):
-        pygame.draw.rect(screen, hover_color, button_rect.inflate(20, 10))
+        pygame.draw.rect(screen, hover_color, button_rect.inflate(20, 10), border_radius=20)
     else:
-        pygame.draw.rect(screen, color, button_rect.inflate(20, 10))
+        pygame.draw.rect(screen, color, button_rect.inflate(20, 10), border_radius=20)
     
     screen.blit(button_text, button_rect)
     
@@ -714,6 +726,10 @@ def lose():
                     main()
 
 def show_menu():
+    global current_frame
+    
+    DRAW = False
+
     # Reproducir la música en bucle indefinido
     pygame.mixer.music.play(-1)
 
@@ -731,22 +747,25 @@ def show_menu():
     
     menu_running = True
     while menu_running:
-        screen.fill((0, 0, 0))  # Fondo negro
+        #Dibujar fondo animado
+        screen.blit(frames[current_frame], (0, 0))
+        current_frame = (current_frame + 1) % len(frames)
         
         # Dibujar el título
-        title_text = font.render("Missile Command", True, (255, 255, 255))
+        title_text = title_font.render("Missile Command", True, (255, 255, 255))
         title_text_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 200))  # Ajustar posición del título
         screen.blit(title_text, title_text_rect)
         
         # Dibujar los botones
         button_rects = []
         y_offset = 0
-        initial_y_pos = SCREEN_HEIGHT // 2 - 100  # Ajusta la posición inicial de los botones
+        initial_y_pos = SCREEN_HEIGHT // 2 - 50 # Ajusta la posición inicial de los botones
 
-        for button in buttons:
-            button_rect = draw_button(button["text"], (SCREEN_WIDTH // 2, initial_y_pos + y_offset), button_font, button_color, button_hover_color)
-            button_rects.append({"rect": button_rect, "action": button["action"]})
-            y_offset += 60  # Ajustar el espaciado entre botones (puedes reducirlo si lo prefieres)
+        if DRAW:
+            for button in buttons:
+                button_rect = draw_button(button["text"], (SCREEN_WIDTH // 2, initial_y_pos + y_offset), button_font, button_color, button_hover_color)
+                button_rects.append({"rect": button_rect, "action": button["action"]})
+                y_offset += 60  # Ajustar el espaciado entre botones (puedes reducirlo si lo prefieres)
         
         
         pygame.display.flip()
@@ -756,6 +775,7 @@ def show_menu():
                 pygame.quit()
                 sys.exit(0)
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                DRAW = True
                 mouse_pos = pygame.mouse.get_pos()
                 for button in button_rects:
                     if button["rect"].collidepoint(mouse_pos):
