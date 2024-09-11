@@ -828,18 +828,25 @@ def show_menu():
         clock.tick(60)  # Limitar a 60 FPS
 def show_instructions(screen):
     instructions = [
-        "Missile Command - Instrucciones",
+         "Missile Command - Instrucciones",
         "",
         "1. Defiende tus ciudades de los misiles enemigos.",
         "2. Usa el ratón para lanzar misiles desde tus silos.",
         "3. Haz clic en el área para disparar misiles.",
         "4. Cada misil que impacte a un enemigo te da puntos.",
         "5. El juego termina cuando todas tus ciudades",
-        "han sido destruidas.",
-        "6. Cada 3000 puntos se recupera una ciudad"
+        "   han sido destruidas.",
+        "6. Cada 3000 puntos se recupera una ciudad",
         "",
         "Presiona ESC para volver al menú principal."
     ]
+
+    # Ajustar el tamaño de la fuente ligeramente
+    instruction_font = pygame.font.SysFont("consolas", int(SCREEN_HEIGHT * 0.033))
+    
+    # Calcular el margen vertical
+    total_height = len(instructions) * 25  # 25 es el espaciado vertical entre líneas
+    margin_top = (SCREEN_HEIGHT - total_height) // 2
     
     running = True
     while running:
@@ -847,8 +854,8 @@ def show_instructions(screen):
         
         # Dibujar las instrucciones
         for i, line in enumerate(instructions):
-            text_surface = font.render(line, True, WHITE)
-            text_rect = text_surface.get_rect(center=(SCREEN_WIDTH/2, 50 + i*30))
+            text_surface = instruction_font.render(line, True, WHITE)
+            text_rect = text_surface.get_rect(center=(SCREEN_WIDTH/2, margin_top + i*25))
             screen.blit(text_surface, text_rect)
         
         pygame.display.flip()
