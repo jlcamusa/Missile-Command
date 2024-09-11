@@ -16,15 +16,15 @@ from bomber import Bomber
 pygame.init()
 pygame.mixer.init()
 
-
-
 # Sonidos
 missile_sfx = pygame.mixer.Sound("assets/sounds/explode.mp3")
 missile_count_sfx = pygame.mixer.Sound("assets/sounds/roll-up.mp3")
 shelter_count_sfx = pygame.mixer.Sound("assets/sounds/roll-up-2.mp3")
 final_sfx = pygame.mixer.Sound("assets/sounds/finale.mp3")
+extra_life_sfx = pygame.mixer.Sound("assets/sounds/one-up.mp3")
 
 final_sfx.set_volume(0.5)
+extra_life_sfx.set_volume(0.5)
 
 # Musica
 pygame.mixer.music.load("assets/music/menu.mp3")
@@ -107,6 +107,19 @@ for i in range(1, 63):  # Suponiendo que tienes 10 fotogramas numerados como fra
     frames.append(pygame.transform.scale(frame, (SCREEN_WIDTH, SCREEN_HEIGHT)))
 
 current_frame = 0
+extra_life = 0
+min_score = 3000
+
+def get_random_false_index(lst):
+    # Filtrar la lista para obtener solo los índices de los valores False
+    false_indices = [i for i, value in enumerate(lst) if value is False]
+    
+    # Verificar si hay valores False en la lista
+    if not false_indices:
+        return None  # O manejar el caso donde no hay valores False
+    
+    # Seleccionar un índice al azar
+    return random.choice(false_indices)
 
 def load_high_scores():
     try:
@@ -565,13 +578,16 @@ def launch_rocket(x, y):
     launcher_position = designate_launcher(x, y)
     if launcher_position == launcher_positions[0]:
         launcher_list[0].ammo -= 1
+        player_missiles.append(Missile(launcher_position, SCREEN_HEIGHT - SHELTER_HEIGHT, x, y, player_speed, 0))
     elif launcher_position == launcher_positions[1]:
         launcher_list[1].ammo -= 1
+        player_missiles.append(Missile(launcher_position, SCREEN_HEIGHT - SHELTER_HEIGHT, x, y, player_speed * 1.5, 0))
     elif launcher_position == launcher_positions[2]:
         launcher_list[2].ammo -= 1
+        player_missiles.append(Missile(launcher_position, SCREEN_HEIGHT - SHELTER_HEIGHT, x, y, player_speed, 0))
     else:
         return
-    player_missiles.append(Missile(launcher_position, SCREEN_HEIGHT - SHELTER_HEIGHT, x, y, player_speed, 0))
+    
 
 def launch_specific_rocket(x, y, launcher_position):
     if y > SCREEN_HEIGHT-SHELTER_HEIGHT*1.4:
@@ -579,13 +595,15 @@ def launch_specific_rocket(x, y, launcher_position):
 
     if launcher_position == launcher_positions[0] and launcher_list[0].ammo > 0:
         launcher_list[0].ammo -= 1
+        player_missiles.append(Missile(launcher_position, SCREEN_HEIGHT - SHELTER_HEIGHT, x, y, player_speed, 0))
     elif launcher_position == launcher_positions[1] and launcher_list[1].ammo > 0:
         launcher_list[1].ammo -= 1
+        player_missiles.append(Missile(launcher_position, SCREEN_HEIGHT - SHELTER_HEIGHT, x, y, player_speed * 1.5, 0))
     elif launcher_position == launcher_positions[2] and launcher_list[2].ammo > 0:
         launcher_list[2].ammo -= 1
+        player_missiles.append(Missile(launcher_position, SCREEN_HEIGHT - SHELTER_HEIGHT, x, y, player_speed, 0))
     else:
         return
-    player_missiles.append(Missile(launcher_position, SCREEN_HEIGHT - SHELTER_HEIGHT, x, y, player_speed, 0))
 
 
 def middle_point(x, y, wx, wy, r):
@@ -653,7 +671,7 @@ def collision():
                     break
 
 def new_level():
-    global level, screen
+    global level, screen, shelter, player_score, extra_life, min_score
     
     if not enemy_missiles and not enemy_bombers:
 
@@ -668,7 +686,19 @@ def new_level():
         launcher_list[2].ammo = 10
         explosion_list.clear()
         level += 1
-       
+
+        # Extra city loop
+        if player_score > min_score:
+            extra_life_sfx.play()
+
+        while player_score > min_score:
+            extra_life += 1
+            min_score += 3000
+
+        while extra_life > 0 and False in shelter:
+            shelter[get_random_false_index(shelter)] = True
+            extra_life -= 1
+
         for i in range (8 + level - 1):
             wait = 300 * (i // 8)
             if i < 8:
@@ -801,6 +831,7 @@ def show_instructions(screen):
         "4. Cada misil que impacte a un enemigo te da puntos.",
         "5. El juego termina cuando todas tus ciudades",
         "han sido destruidas.",
+        "6. Cada 3000 puntos se recupera una ciudad"
         "",
         "Presiona ESC para volver al menú principal."
     ]
