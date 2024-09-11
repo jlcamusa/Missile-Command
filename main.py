@@ -54,6 +54,9 @@ pygame.display.set_caption("Missile Command")
 
 half = SCREEN_WIDTH/18
 
+sky = pygame.image.load("assets/sprites/nigth_sky.jpg")
+sky = pygame.transform.scale(sky, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
 shelter_positions = [SCREEN_WIDTH/9 - half, 2*SCREEN_WIDTH/9 - half,
                      3*SCREEN_WIDTH/9 - half, 4*SCREEN_WIDTH/9 - half,
                      5*SCREEN_WIDTH/9 - half, 6*SCREEN_WIDTH/9 - half,
@@ -391,7 +394,7 @@ def draw_button(text, pos, font, color, hover_color):
 
 # draw: dibuja todos los elementos del juego
 def draw():
-    screen.fill(BLACK)    
+    screen.blit(sky, (0, 0))
     hill_height = SCREEN_HEIGHT - SHELTER_HEIGHT
 
     # Dibuja el suelo
