@@ -53,6 +53,9 @@ pygame.display.set_caption("Missile Command")
 
 half = SCREEN_WIDTH/18
 
+sky = pygame.image.load("assets/sprites/nigth_sky.jpg")
+sky = pygame.transform.scale(sky, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
 shelter_positions = [SCREEN_WIDTH/9 - half, 2*SCREEN_WIDTH/9 - half,
                      3*SCREEN_WIDTH/9 - half, 4*SCREEN_WIDTH/9 - half,
                      5*SCREEN_WIDTH/9 - half, 6*SCREEN_WIDTH/9 - half,
@@ -236,7 +239,7 @@ def score_count(screen):
 
         # Texto puntaje
         text_surface = font.render("Score : " + str(player_score), True, (255, 0, 0))
-        text_rect = text_surface.get_rect(center=((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2 - 100)))
+        text_rect = text_surface.get_rect(center=((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2 - 80)))
         screen.blit(text_surface, text_rect)
         
         # Misiles
@@ -290,7 +293,7 @@ def score_count(screen):
 
         # Texto puntaje
         text_surface = font.render("Score : " + str(player_score), True, (255, 0, 0))
-        text_rect = text_surface.get_rect(center=((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2 - 100)))
+        text_rect = text_surface.get_rect(center=((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2 - 80)))
         screen.blit(text_surface, text_rect)
         
         # Misiles
@@ -315,7 +318,7 @@ def score_count(screen):
 
         for i in range(cities):
             rect_x = SCREEN_WIDTH / 2 - total_rects_width / 2 + i * (rect_width + rect_spacing)
-            rect_y = SCREEN_HEIGHT / 2 + 50
+            rect_y = SCREEN_HEIGHT / 2 
             rect_rect = (rect_x, rect_y, rect_width, rect_height)
             pygame.draw.rect(screen, colors_list[6], rect_rect)
 
@@ -353,6 +356,38 @@ def draw_bomber(bomber, screen):
             shoot_missiles(bomber)
             bomber.shoot_timer = random.randint(180, 300)  # Reiniciar el temporizador
 
+# Estructura de datos para almacenar la información de las ciudades
+city_data = []
+
+def initialize_cities():
+    global city_data
+    city_data = []
+    for _ in range(6):  # 6 ciudades en total
+        buildings = []
+        for _ in range(5):  # 5 edificios por ciudad
+            building_height = random.uniform(0.5, 0.9)
+            buildings.append(building_height)
+        city_data.append(buildings)
+
+def draw_city(screen, x, y, width, height, city_index):
+    # Colores
+    BUILDING_COLOR = BLUE  
+    
+    # Dibuja el suelo de la ciudad
+    pygame.draw.rect(screen, (50, 50, 50), (x, y + height * 0.9, width, height * 0.1))
+    
+    # Dibuja edificios
+    for i, building_height_factor in enumerate(city_data[city_index]):
+        building_width = width / 7
+        building_height = building_height_factor * height
+        building_x = x + (i + 0.5) * width / 7 - building_width / 2
+        building_y = y + height * 1.15 - building_height  # Ajusta la altura aquí
+        
+        # Dibuja el edificio
+        pygame.draw.rect(screen, BUILDING_COLOR, (building_x, building_y, building_width, building_height))
+
+        
+
 def draw_scores(screen, player_score, high_score):
     
     # Dibuja el puntaje del jugador en la parte superior izquierda
@@ -381,7 +416,7 @@ def draw_button(text, pos, font, color, hover_color):
 
 # draw: dibuja todos los elementos del juego
 def draw():
-    screen.fill(BLACK)    
+    screen.blit(sky, (0, 0))
     hill_height = SCREEN_HEIGHT - SHELTER_HEIGHT
 
     # Dibuja el suelo
@@ -415,16 +450,16 @@ def draw():
 
     # Dibuja las ciudades restantes
     launcher_pos = 1
+    city_index=0
     for i in range(len(shelter)):
         if shelter[i]:
-            rect_x = (i + launcher_pos) * SCREEN_WIDTH / 9 + SHELTER_HEIGHT / 4
-            rect_y = SCREEN_HEIGHT - GROUND_HEIGHT * 1.2
-            rect_width = SHELTER_HEIGHT / 2
-            rect_height = SHELTER_HEIGHT / 3
-            rect = (rect_x, rect_y, rect_width, rect_height)
+            city_x = (i + launcher_pos) * SCREEN_WIDTH / 9 + SHELTER_HEIGHT / 4
+            city_y = SCREEN_HEIGHT - GROUND_HEIGHT * 1.2 - SHELTER_HEIGHT
+            city_width = SHELTER_HEIGHT / 2
+            city_height = SHELTER_HEIGHT
+            draw_city(screen, city_x, city_y, city_width, city_height, city_index)
+            city_index += 1
 
-            pygame.draw.rect(screen, colors_list[6], rect)
-            
         if (i + 1) % 3 == 0:
             launcher_pos = launcher_pos+1
     
@@ -726,6 +761,7 @@ def show_menu():
 
 def main():
     global player_score, level
+    initialize_cities()
     show_menu()  # Mostrar el menú al inicio
 
     while True:
